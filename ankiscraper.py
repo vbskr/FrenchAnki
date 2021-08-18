@@ -14,7 +14,7 @@ ankicards = ""
 newsearch = ""
 while prompt != "q":
     inp = input("Hvilket ord vil du søke opp? ")
-    
+
     url = "https://www.wordreference.com/fren/" + inp
     result = requests.get(url)
     content = result.content
@@ -202,6 +202,8 @@ while prompt != "q":
             remove_word = fre_sen_remove[remove_word_start:remove_word_end]
             sentence_keyword_removed = fre_sen_remove.replace(
                 remove_word, "___")
+            print("Sentence with keyword removed: " +
+                  sentence_keyword_removed + "\n")
     # Finner uttale-IPA
     url = "https://fr.wiktionary.org/wiki/" + word
     result = requests.get(url)
