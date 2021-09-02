@@ -16,6 +16,8 @@ filePath = "api.txt"
 textFile = open(filePath)
 api_key = textFile.read()
 textFile.close()
+api_key = api_key.replace("\n", "")
+
 
 excel_folder = Path().cwd()/"vocab"
 df = pd.read_excel(excel_folder/"frenchkindle.xlsx")
@@ -327,7 +329,7 @@ while prompt != "q":
         if item.endswith(".jpg"):
             os.remove(os.path.join(dir_name, item))
     # Gjør bildet lesbart for anki:
-    image_name = "<img src=" + '"' + image_name + '">'
+    image_name_anki = "<img src=" + '"' + image_name + '">'
     # Legger inn forvo:
     audio_prompt = input("Do you want to search forvo.com for pronunciation? Press enter to search for your current term, or type a new term, or press n to skip: ")
     newaudioname = ""
@@ -366,7 +368,7 @@ while prompt != "q":
     if prompt != "x":
         # Lager kort
         # ankicard = ';'.join([sentence_keyword_removed,image_name,definition,word,gender,fre_sen,pron,two_cards, '', '', '', ''])
-        ankicard = sentence_keyword_removed + ";" + image_name + ";" + definition + ";" + word + \
+        ankicard = sentence_keyword_removed + ";" + image_name_anki + ";" + definition + ";" + word + \
             ";" + gender + ";" + fre_sen + ";" + pron + \
             ";" + two_cards + ";" + ";" + ";" + ";" + ";"
         ankicards = ankicards + ankicard + "\n"
@@ -377,3 +379,6 @@ while prompt != "q":
         if newaudioname != "":
             if os.path.exists(audiofolder/newaudioname):
                 os.remove(audiofolder/newaudioname)
+        if image_name != "":
+            if os.path.exists(imagefolder/image_name):
+                os.remove(imagefolder/image_name)
