@@ -10,6 +10,13 @@ import psutil
 import os
 from pyforvo import Forvo
 
+
+# adding forvo API
+filePath = "api.txt"
+textFile = open(filePath)
+api_key = textFile.read()
+textFile.close()
+
 prompt = ""
 ankicards = ""
 newsearch = ""
@@ -310,7 +317,6 @@ while prompt != "q":
             audiosearch = word
         elif audio_prompt != "" and audio-prompt != "n":
             audiosearch = audio_prompt
-        api_key = "f6de55a979d6355d98613d2378e69515"
         forvo = Forvo(api_key)
         #Play pronunciation (only supports Linux with mplayer installed)
         audio = forvo.get_pronunciation(audiosearch, language='fr')

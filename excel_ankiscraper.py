@@ -11,6 +11,11 @@ import os
 import pandas as pd
 from pyforvo import Forvo
 
+# adding forvo API
+filePath = "api.txt"
+textFile = open(filePath)
+api_key = textFile.read()
+textFile.close()
 
 excel_folder = Path().cwd()/"vocab"
 df = pd.read_excel(excel_folder/"frenchkindle.xlsx")
@@ -331,7 +336,6 @@ while prompt != "q":
             audiosearch = word
         elif audio_prompt != "" and audio-prompt != "n":
             audiosearch = audio_prompt
-        api_key = "f6de55a979d6355d98613d2378e69515"
         forvo = Forvo(api_key)
         #Play pronunciation (only supports Linux with mplayer installed)
         audio = forvo.get_pronunciation(audiosearch, language='fr')
