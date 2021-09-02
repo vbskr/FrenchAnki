@@ -5,7 +5,11 @@
 # scraper output
 ankideck.txt
 images/
+audio/
+images_temp/
+#input files
 vocab/
+
 
 # move textfile
 move_code.txt
