@@ -8,6 +8,7 @@ from PIL import Image
 import glob
 import psutil
 import os
+from pyforvo import Forvo
 
 prompt = ""
 ankicards = ""
@@ -259,10 +260,10 @@ while prompt != "q":
             for item in remove_images:
                 if item.endswith(".jpg"):
                     os.remove(os.path.join(dir_name, item))
-        root = Path().cwd()/"images"
+        root = Path().cwd()/"images_temp"
         duckduckgo_search(root, word, search, max_results=10)
-        image_folder = Path().cwd()/"images"/word
-        images_jpg = "images/" + word + "/*.jpg"
+        image_folder = Path().cwd()/"images_temp"/word
+        images_jpg = "images_temp/" + word + "/*.jpg"
         images = glob.glob(images_jpg)
         cont = ""
         number_images = len(images)
@@ -290,6 +291,8 @@ while prompt != "q":
         hsize = int((float(img.size[1])*float(wpercent)))
         img = img.resize((basewidth, hsize), Image.ANTIALIAS)
         img.save(image_name)
+        imagefolder = Path().cwd()/"images"
+        os.rename(image_name, imagefolder/image_name)
     # Removes images that are not used
     root_folder = str(root)
     dir_name = root_folder + "/" + word
@@ -299,7 +302,34 @@ while prompt != "q":
             os.remove(os.path.join(dir_name, item))
     # Gjør bildet lesbart for anki:
     image_name = "<img src=" + '"' + image_name + '">'
-
+    # Legger inn forvo:
+    audio_prompt = input("Do you want to search forvo.com for pronunciation? Press enter to search for your current term, or type a new term, or press n to skip: ")
+    newaudioname = ""
+    if audio_prompt != "n":
+        if audio_prompt == "":
+            audiosearch = word
+        elif audio_prompt != "" and audio-prompt != "n":
+            audiosearch = audio_prompt
+        api_key = "f6de55a979d6355d98613d2378e69515"
+        forvo = Forvo(api_key)
+        #Play pronunciation (only supports Linux with mplayer installed)
+        audio = forvo.get_pronunciation(audiosearch, language='fr')
+        audio.play()
+        # Download audio
+        # Set download folder
+        main_folder = Path().cwd()
+        audiofolder = Path().cwd()/"audio"
+        dwnld = input("Do you want to download the file? Press y :")
+        if dwnld == "y":
+            audio = forvo.get_pronunciation(audiosearch, language = "fr")
+            audio.download(fmt="mp3")
+        for file in os.listdir(main_folder):
+            if file.endswith(".mp3"):
+                audioname = os.path.join(main_folder, file)
+                newaudioname = word + ".mp3"
+                os.rename(audioname, audiofolder/newaudioname)
+                ankiaudio = "[sound:" + newaudioname + "]"
+                pron = pron + ankiaudio
     two_cards = input("Do you want to make two cards? Press y")
     if two_cards == "y":
         two_cards = "y"
@@ -318,3 +348,7 @@ while prompt != "q":
         text_file = open("ankideck.txt", "w")
         n = text_file.write(ankicards)
         text_file.close()
+    else:
+        if newaudioname != "":
+            if os.path.exists(audiofolder/newaudioname):
+                os.remove(audiofolder/newaudioname)
