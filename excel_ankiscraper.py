@@ -53,6 +53,10 @@ while prompt != "q":
     word = soup.select_one(".FrWrd strong").get_text()
     word = word.replace("⇒", "")
     word = word.replace("/", " ou ")
+    if word != inp:
+        check_word = input("Suggested word: " + word + ". Do you want to use this? Press any key, or press n to continue using input term")
+        if check_word == "n":
+            word = inp
     sample = samples.get_text()
 
     # print(html2text.html2text(sample))
