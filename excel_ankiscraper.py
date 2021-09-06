@@ -33,6 +33,8 @@ while prompt != "q":
         word = df["word"][row_number]
         usage = df["usage"][row_number]
         print("\n\n" + "Word: " + word)
+        wordreplace = "**" + word + "**"
+        usage = usage.replace(word, wordreplace)
         print("\n"+ "Usage:" + usage + "\n")
         decision = input("Do you want to add this word? Press enter to confirm, m to move to next sentence, or t to type word: ")
         if decision == "t":
