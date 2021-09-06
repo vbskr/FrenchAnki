@@ -32,6 +32,7 @@ while prompt != "q":
     samples = soup.find(id="articleWRD")
     word = soup.select_one(".FrWrd strong").get_text()
     word = word.replace("⇒", "")
+    word = word.replace("/", " ou ")
     sample = samples.get_text()
 
     # print(html2text.html2text(sample))
