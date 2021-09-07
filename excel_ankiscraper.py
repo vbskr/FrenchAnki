@@ -56,7 +56,7 @@ while prompt != "q":
     word = word.replace("⇒", "")
     word = word.replace("/", " ou ")
     if word != inp:
-        check_word = input("Suggested word: " + word + ". Do you want to use this? Press any key to continue, press n to continue using input term, or t to type: ")
+        check_word = input("\n\nSuggested word: " + word + ". Do you want to use this form of the word instead? Press any key to continue, press n to continue using input term, or t to type: ")
         if check_word == "n":
             word = inp
         if check_word == "t":
@@ -355,7 +355,7 @@ while prompt != "q":
         # Set download folder
         main_folder = Path().cwd()
         audiofolder = Path().cwd()/"audio"
-        dwnld = input("Do you want to download the file? Press y :")
+        dwnld = input("Do you want to download the file? Press y: ")
         if dwnld == "y":
             audio = forvo.get_pronunciation(audiosearch, language = "fr")
             audio.download(fmt="mp3")
@@ -366,7 +366,7 @@ while prompt != "q":
                 os.rename(audioname, audiofolder/newaudioname)
                 ankiaudio = "[sound:" + newaudioname + "]"
                 pron = pron + ankiaudio
-    two_cards = input("Do you want to make two cards? Press y")
+    two_cards = input("Do you want to make two cards? Press y: ")
     if two_cards == "y":
         two_cards = "y"
     else:

@@ -331,7 +331,7 @@ while prompt != "q":
         # Set download folder
         main_folder = Path().cwd()
         audiofolder = Path().cwd()/"audio"
-        dwnld = input("Do you want to download the file? Press y :")
+        dwnld = input("Do you want to download the file? Press y: ")
         if dwnld == "y":
             audio = forvo.get_pronunciation(audiosearch, language = "fr")
             audio.download(fmt="mp3")
@@ -342,7 +342,7 @@ while prompt != "q":
                 os.rename(audioname, audiofolder/newaudioname)
                 ankiaudio = "[sound:" + newaudioname + "]"
                 pron = pron + ankiaudio
-    two_cards = input("Do you want to make two cards? Press y")
+    two_cards = input("Do you want to make two cards? Press y: ")
     if two_cards == "y":
         two_cards = "y"
     else:
