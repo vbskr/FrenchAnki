@@ -57,11 +57,11 @@ To import cards correctly, you have to import the example card file (example_car
 ## Importing to Anki
 The Anki cards you create are stored in a file called ankideck.txt.
 
-This file can be imported into Anki File->Import.
+This file can be imported into Anki with File->Import.
 
 Fields should be separated by the | sign.
 
-Click "Allow HTML tags in fields"
+Check "Allow HTML tags in fields"
 
 Make sure that "Type" is set to "French Anki Scraper Card".
 
@@ -69,4 +69,4 @@ Make sure that "Type" is set to "French Anki Scraper Card".
 
 Finally, move all the image files (in the images folder) and the audio files (in the audio folder) to the subdirectory in your Anki folder called collection.media.
 
-Then, revise your cards and learn French!
+Then, revise your cards! Happy learning!
