@@ -10,6 +10,10 @@ import psutil
 import os
 import pandas as pd
 from pyforvo import Forvo
+import random
+
+# Creating unique identifyer for image and audio files
+unique_identifyer = random.randint(0,10000)
 
 # adding forvo API
 filePath = "api.txt"
@@ -21,7 +25,6 @@ api_key = api_key.replace("\n", "")
 
 excel_folder = Path().cwd()/"vocab"
 df = pd.read_excel(excel_folder/"frenchkindle.xlsx")
-
 
 words_later = ""
 prompt = ""
@@ -38,309 +41,273 @@ while prompt != "q":
         print("\n"+ "Usage:" + usage + "\n")
         decision = input("Do you want to add this word? Press enter to confirm, m to move to next sentence, or t to type word: ")
         if decision == "t":
-            inp = input("Type word to search for: ")
+            search = input("Type word to search for: ")
             new_search = "n"
         if decision == "m":
             new_search = "y"
         elif decision != "t" and decision != "m":
-            inp = word
+            search = word
             new_search = "n"
         row_number = row_number +1
-    url = "https://www.wordreference.com/fren/" + inp
-    result = requests.get(url)
+    result = requests.get("https://www.wordreference.com/fren/" + search)
     content = result.content
     soup = BeautifulSoup(content, features="lxml")
-
+    string = soup.prettify()
     samples = soup.find(id="articleWRD")
     word = soup.select_one(".FrWrd strong").get_text()
     word = word.replace("⇒", "")
     word = word.replace("/", " ou ")
-    if word != inp:
-        check_word = input("\n\nSuggested word: " + word + ". Do you want to use this form of the word instead? Press any key to continue, press n to continue using input term, or t to type: ")
+    if word != search:
+        check_word = input("Suggested word: " + word + ". Do you want to use this? Press any key, or press n to continue using input term")
         if check_word == "n":
-            word = inp
-        if check_word == "t":
-            word = input("Type word to search for: ")
-    sample = samples.get_text()
+            word = search
+    # Finding how many word instances (they are tagget with fren: + a number):
+    numbers = []
+    number_string = string
+    while number_string.find('id="fren:') != -1:
+        id_start = number_string.find('id="fren:')
+        number_start = id_start + 9
+        number_end = number_string.find('"', number_start)
+        number = number_string[number_start:number_end]
+        numbers.append(number)
+        number_string = number_string[number_end:len(number_string)]
 
-    # print(html2text.html2text(sample))
+    print(str(len(numbers)) + " definitions found.")
+    input("Press enter to show definitions: ")
 
-    # This is our string:
-    string = html2text.html2text(sample)
-    originalstring = string
-
-    # String cleaning:
-    # Clear linebreaks
-    while string.find("\n") != -1:
-        string = string.replace("\n", " ")
-    # Managing quotation marks:
-    while string.find('"') != -1:
-        string = string.replace('"', "DOUBLE2")
-    while string.find("'") != -1:
-        string = string.replace("'", "SINGLE1")
-
-    phrases_to_remove = [
-        "traductionsFrançaisAnglais",
-        "verbe transitif: verbe qui sSINGLE1utilise avec un complément dSINGLE1objet direct (COD). Ex : DOUBLE2JSINGLE1écris une lettreDOUBLE2. DOUBLE2Elle a retrouvé son chatDOUBLE2.",
-        "vtrtransitive verb: Verb taking a direct object--for example, DOUBLE2Say something.DOUBLE2 DOUBLE2She found the cat.DOUBLE2",
-        "verbal expression: Phrase with special meaning functioning as verb--for example, DOUBLE2put their heads together,DOUBLE2 DOUBLE2come to an end.DOUBLE2",
-        "verbe pronominal: verbe qui sSINGLE1utilise avec le pronom réfléchi DOUBLE2seDOUBLE2, qui sSINGLE1accorde avec le sujet. Ex : se regarder : DOUBLE2Je me regarde dans le miroir. Tu te regardes dans le miroir.DOUBLE2. Les verbes pronominaux se conjuguent toujours avec lSINGLE1auxiliaire DOUBLE2êtreDOUBLE2. Ex : DOUBLE2Elle a lavé la voitureDOUBLE2 mais DOUBLE2Elle sSINGLE1est lavée.DOUBLE2",
-        ": Verb with adverb(s) or preposition(s), having special meaning, divisible--for example, DOUBLE2call offDOUBLE2 [=cancel], DOUBLE2call the game off,DOUBLE2 DOUBLE2call off the game.DOUBLE2",
-        "nmnom masculin: sSINGLE1utilise avec les articles DOUBLE2leDOUBLE2, DOUBLE2lSINGLE1DOUBLE2 (devant une voyelle ou un h muet), DOUBLE2unDOUBLE2. Ex : garçon - nm > On dira DOUBLE2le garçonDOUBLE2 ou DOUBLE2un garçonDOUBLE2. ",
-        "nnoun: Refers to person, place, thing, quality, etc. ",
-        "adjadjectif: modifie un nom. Il est généralement placé après le nom et sSINGLE1accorde avec le nom (ex : un ballon bleu, une balle bleue). En général, seule la forme au masculin singulier est donnée. Pour former le féminin, on ajoute DOUBLE2eDOUBLE2 (ex : petit > petite) et pour former le pluriel, on ajoute DOUBLE2sDOUBLE2 (ex : petit > petits). Pour les formes qui sont DOUBLE2irrégulièresDOUBLE2 au féminin, celles-ci sont données (ex : irrégulier, irrégulière > irrégulier = forme masculine, irrégulière = forme féminine)",
-        "adjadjectif: modifie un nom. Il est généralement placé après le nom et sSINGLE1accorde avec le nom (ex : un ballon bleu, une balle bleue). En général, seule la forme au masculin singulier est donnée. Pour former le féminin, on ajoute DOUBLE2eDOUBLE2 (ex : petit > petite) et pour former le pluriel, on ajoute DOUBLE2sDOUBLE2 (ex : petit > petits). Pour les formes qui sont DOUBLE2irrégulièresDOUBLE2 au féminin, celles- ci sont données (ex : irrégulier, irrégulière > irrégulier = forme masculine, irrégulière = forme féminine)",
-        "adjadjective: Describes a noun or pronoun--for example, DOUBLE2a tall girl,DOUBLE2 DOUBLE2an interesting book,DOUBLE2 DOUBLE2a big house.DOUBLE2 ",
-        "adjadjective: Describes a noun or pronoun-- for example, DOUBLE2a tall girl,DOUBLE2 DOUBLE2an interesting book,DOUBLE2 DOUBLE2a big house.DOUBLE2 ",
-        "nfnom féminin: sSINGLE1utilise avec les articles DOUBLE2laDOUBLE2, DOUBLE2lSINGLE1DOUBLE2 (devant une voyelle ou un h muet), DOUBLE2uneDOUBLE2. Ex : fille - nf > On dira DOUBLE2la filleDOUBLE2 ou DOUBLE2une filleDOUBLE2. Avec un nom féminin, lSINGLE1adjectif sSINGLE1accorde. En général, on ajoute un DOUBLE2eDOUBLE2 à lSINGLE1adjectif. Par exemple, on dira DOUBLE2une petite filleDOUBLE2. ",
-        "nfnom féminin: sSINGLE1utilise avec les articles DOUBLE2laDOUBLE2, DOUBLE2lSINGLE1DOUBLE2 (devant une voyelle ou un h muet), DOUBLE2uneDOUBLE2. Ex : fille - nf > On dira DOUBLE2la filleDOUBLE2 ou DOUBLE2une filleDOUBLE2. Avec un nom féminin, lSINGLE1adjectif sSINGLE1accorde. En général, on ajoute un DOUBLE2eDOUBLE2 à lSINGLE1adjectif. Par exemple, on dira DOUBLE2une petite filleDOUBLE2. ",
-        "conjconjunction: Connects words, clauses, and sentences--for example, DOUBLE2and,DOUBLE2 DOUBLE2but,DOUBLE2 DOUBLE2because,DOUBLE2 DOUBLE2in order that.DOUBLE2 in the manner of, following the example of ",
-        "exprexpression: Prepositional phrase, adverbial phrase, or other phrase or expression--for example, DOUBLE2behind the times,DOUBLE2 DOUBLE2on your own.DOUBLE2 ",
-        "advadverbe: modifie un adjectif ou un verbe. Est toujours invariable ! Ex : DOUBLE2Elle est très grande.DOUBLE2 DOUBLE2Je marche lentement.DOUBLE2 ",
-        "advadverb: Describes a verb, adjective, adverb, or clause--for example, DOUBLE2come quickly,DOUBLE2 DOUBLE2very rare,DOUBLE2 DOUBLE2happening now,DOUBLE2 DOUBLE2fall down.DOUBLE2 ",
-        "preppreposition: Relates noun or pronoun to another element of sentence--for example, DOUBLE2a picture of John,DOUBLE2 DOUBLE2She walked from my house to yours.DOUBLE2 ",
-        "viverbe intransitif: verbe qui sSINGLE1utilise sans complément dSINGLE1objet direct (COD). Ex : DOUBLE2Il est parti.DOUBLE2 DOUBLE2Elle a ri.DOUBLE2 ",
-        "viintransitive verb: Verb not taking a direct object--for example, DOUBLE2She jokes.DOUBLE2 DOUBLE2He has arrived.DOUBLE2 ",
-        "Note: Followed by SINGLE1onSINGLE1, SINGLE1uponSINGLE1, or SINGLE1aroundSINGLE1 ",
-    ]
-
-    for i in phrases_to_remove:
-        while string.find(i) != -1:
-            string = string.replace(i, "ENDPART")
-
-    # Managing quotation marks again:
-    while string.find("DOUBLE2") != -1:
-        string = string.replace("DOUBLE2", '"')
-    while string.find("SINGLE1") != -1:
-        string = string.replace("SINGLE1", "'")
-
-    # Other things to remove:
-    phrases_to_remove = [
-        "ⓘCette phrase n'est pas une traduction de la phrase originale.",
-        "Un oubli important ? Signalez une erreur ou suggérez une amélioration. Traductions supplémentairesFrançaisAnglais",
-        "⇒",
-    ]
-
-    for i in phrases_to_remove:
-        while string.find(i) != -1:
-            string = string.replace(i, "")
-
-    # Finding definitions:
-    next = "m"
-    while next == "m":
-        # French Definition
-        definition_start = string.find("(")
-        definition_end = string.find(")", definition_start)
-        definition = string[(definition_start + 1):(definition_end)]
-        print("French Definition: " + definition + "\n")
-        # English Definition:
-        eng_def_start = definition_end + 1
-        eng_def_end = string.find("ENDPART", definition_end)
-        eng_def = string[eng_def_start:eng_def_end]
-        # if eng_def.find("⇒") != -1:
-        #     eng_def = eng_def[0:(eng_def.find("⇒"))]
-        next_eng_def_start = eng_def_end + 7
-        next_eng_def_end = string.find("ENDPART", next_eng_def_start)
-        next_search = string[next_eng_def_start:next_eng_def_end]
-        check_dots = re.search('[.!?]', next_search)
-        while check_dots == None:
-            eng_def_new = (string[(next_eng_def_start):next_eng_def_end])
-            eng_def = eng_def + ", " + eng_def_new
-            next_eng_def_start = next_eng_def_end + 7
-            next_eng_def_end = string.find("ENDPART", next_eng_def_start)
-            next_search = string[next_eng_def_start:next_eng_def_end]
-            check_dots = re.search('[.!?]', next_search)
-            eng_def = eng_def.replace(" ,", ",")
-        print("English Definition: " + eng_def + "\n")
-        # French Sentence:
-        # Finding end of sentence, checking if there are more than one sentence for each language
-        string = string[next_eng_def_start:len(string)]
-        sentence_end = string.find("ENDPART", 0)
-        search = string[0:sentence_end]
-        find_all_dots = re.findall('[.!?]', search)
-        number_sentences = len(find_all_dots)/2
-        if find_all_dots == 3:
-            iterator = 1
+    main_list = []
+    temp_list = []
+    number_iterator = 0
+    stop = ""
+    first_iterator_save = 0
+    second_iterator_save = 0
+    full_length = len(numbers)
+    current_length = 0
+    limit_iterator = 0
+    iterator = 0
+    choice = "s"
+    while number_iterator < full_length and choice == "s": # Makes it iterate through all the words found
+        print_iterator = 0 + len(main_list)
+        # French Word
+        current_length = full_length - len(main_list)
+        if current_length < 5:
+            max_five = current_length
         else:
-            iterator = number_sentences
-        if re.search('([A-Z][^.!?]+)', search) != None:
-            # Passer på å begynne der det er en stor bokstav
-            fre_sen_start_reg = re.search('([A-Z][^.!?]+)', search).span()
-            fre_sen_start = fre_sen_start_reg[0]
-        else:
-            print("Did not find start of French sentence. Please type manually: ")
-            fre_sen_start = 0
-        number = 1
-        OK = "undetermined"
-        while iterator != 0 and re.search('[.!?]', search) != None and OK != "":
-            fre_sen_end = re.search('[.!?]', search).span()
-            fre_sen_end_result = re.search('[.!?]', search)
-            fre_sen_end = fre_sen_end[0] + 1
-            fre_sen = search[fre_sen_start:fre_sen_end]
-            print("French Sentence " + str(number) + ": " + fre_sen + "\n")
-            number = number + 1
-            search = search.replace(fre_sen, "")
-            iterator = iterator - 1
-            # French Sentence: Remove keyword:
-            keyword = word[0:(len(word)-2)]
-            if fre_sen.find(keyword) != 1:
-                remove_word_start = fre_sen.find(keyword)
-                # Intervention to make sure one can search for expressions, i.e. more than one word
-                if fre_sen.find(word) != -1:
-                    fre_sen_remove = fre_sen.replace(word, "PLACEHOLDER")
-                else:
-                    fre_sen_remove = fre_sen.replace(keyword, "PLACEHOLDER")
-                remove_word_end = fre_sen_remove.find(" ", remove_word_start)
-                remove_word = fre_sen_remove[remove_word_start:remove_word_end]
-                sentence_keyword_removed = fre_sen_remove.replace(
-                    remove_word, "___")
-                print("Sentence with keyword removed: " +
-                      sentence_keyword_removed + "\n")
+            max_five = 5
+        limit_iterator = 0
+        while limit_iterator < max_five:
+            fre_word_number = "#fren\:" + numbers[number_iterator]
+            fre_word_path = fre_word_number + " > td.FrWrd > strong" # This is the css selector pattern for the French word
+            fre_word = soup.select_one(fre_word_path).get_text() # This selects the actual text
+            fre_word = fre_word.replace("⇒", "")
+            # print("Word: " + fre_word)
+            temp_list.append(fre_word)
+            # French definition
+            def_path = fre_word_number + " > td:nth-child(2)" # This is the css selector pattern for the definition of the word above
+            definition = soup.select_one(def_path).get_text()
+            definition = definition.replace("(", "")
+            definition = definition.replace(")", "")
+            # print("Definition: " + definition)
+            temp_list.append(definition)
+            # English definition
+            eng_def_path = fre_word_number + " > td.ToWrd"
+            eng_def = soup.select_one(eng_def_path).get_text()
+            eng_remove = soup.select_one(eng_def_path + "> em").get_text()
+            eng_def = eng_def.replace(eng_remove, "")
+            eng_def = eng_def.replace("⇒", "")
+            # Note that this only gives the first English definition given. It is much harder to find the next ones... Might figure out later
+            # print("English definition: " + eng_def)
+            temp_list.append(eng_def)
+            # French Sentence:
+            # It is much harder to get this one right, because there is no obvious way to where it is found in the css selector tree... But we are trying to find a workaround
+            fre_sen = ""
+            first_table_test = ""
+            if first_iterator_save != 0:
+                first_iterator = first_iterator_save # i.e., if this is not the first search, then we start were we left off.
             else:
-                print("Keyword not found")
-            OK = input("If this is OK, press enter. Else, press m for more")
-        # English sentence
-        if find_all_dots == 3:
-            iterator = 1
-        else:
-            iterator = number_sentences
-        number = 1
-        eng_sen_start = 0
-        eng_sen_end = 0
-        while iterator != 0 and re.search('[.!?]', search) != None:
-            eng_sen_end = re.search('[.!?]', search).span()
-            eng_sen_end_result = re.search('[.!?]', search)
-            eng_sen_end = eng_sen_end[0] + 1
-            eng_sen = search[eng_sen_start:eng_sen_end]
-            print("English Sentence " + str(number) + ": " + eng_sen + "\n")
-            number = number + 1
-            search = search.replace(eng_sen, "")
-            iterator = iterator - 1
-        if eng_sen_end != 0:
-            string = string[(string.find(
-                "ENDPART", eng_sen_end)+1):len(string)]
-        else:
-            string = string[(string.find(
-                "ENDPART", fre_sen_end)+1):len(string)]
-        next = input(
-            "Do you want to scroll to the next definition? Press m to scroll, t to type sentence or any key to continue")
-    if next == "t":
-        fre_sen = input("Write your sentence here: ")
-        keyword = word[0:(len(word)-2)]
-        if fre_sen.find(keyword) != -1:
-            remove_word_start = fre_sen.find(keyword)
-            # Intervention to make sure one can search for expressions, i.e. more than one word
-            if fre_sen.find(word) != -1:
-                fre_sen_remove = fre_sen.replace(word, "PLACEHOLDER")
+                first_iterator = 1 # We start at 1, not zero
+            # print("ITERATOR:" + str(first_iterator)) # To check
+            while first_iterator < 50: # There is never more than 50 instances
+                first_table_path = "#articleWRD > table:nth-child(" + str(first_iterator) + ")" # Checks the first part of the table.
+                first_table_test = soup.select_one(first_table_path) # If the first part of the table exists...
+                if first_table_test is not None:
+                    if second_iterator_save != 0:
+                        second_iterator = second_iterator_save +1
+                    else:
+                        second_iterator = 1
+                    while second_iterator < 50:
+                        # print("HER: " + soup.select_one(first_table_path).get_text())
+                        second_table_path = first_table_path + " > tr:nth-child(" + str(second_iterator) + ") > td.FrEx" #We then check for the second part of the table.
+                        # print("PATH: " + second_table_path)
+                        second_table_test = soup.select_one(second_table_path)
+                        if second_table_test is not None:
+                            fre_sen = soup.select_one(second_table_path).get_text()
+                            second_iterator_save = second_iterator +1
+                            second_iterator = 100
+                            first_iterator_save = first_iterator
+                            first_iterator = 100
+                        second_iterator = second_iterator +1
+                        if second_iterator == 49:
+                            second_iterator_save = 0 #i.e. if the first part of the css selector goes up one, the second part is also reset.
+                first_iterator = first_iterator +1
+            temp_list.append(fre_sen)
+            number_iterator = number_iterator +1
+            limit_iterator = limit_iterator + 1
+            main_list.append(temp_list)
+            temp_list = []
+        current_iterator = print_iterator + max_five
+        while print_iterator < current_iterator:
+            print("\n")
+            print("Definition " + str(print_iterator +1) + ":")
+            print("Word: " + main_list[print_iterator][0])
+            print("French definition: " + main_list[print_iterator][1])
+            print("English definition: " + main_list[print_iterator][2])
+            print("French sentence: " + main_list[print_iterator][3])
+            print_iterator = print_iterator +1
+        choice = input("\nDo you want to pick one of these definitions? Press the corresponding number, press enter to select the first of the definitions listed here or s to scroll further: ")
+        if choice == "s":
+            if number_iterator == full_length:
+                print("No more definitions. Beginning from top")
+                number_iterator = 0
+                limit_iterator = 0
+                main_list = []
+    #Picking a definition
+    pick = ""
+    while pick == "":
+        if choice == "":
+            choice = current_iterator - max_five +1
+        try:
+            choice = int(choice)
+            if choice > len(numbers):
+                choice = input("Please enter a number between 1 and " + str(len(numbers)))
+                pick = ""
             else:
-                fre_sen_remove = fre_sen.replace(keyword, "PLACEHOLDER")
-            remove_word_end = fre_sen_remove.find(" ", remove_word_start)
-            if remove_word_end == -1:
-                remove_word_end = fre_sen_remove.find(".", remove_word_start)
-            remove_word = fre_sen_remove[remove_word_start:remove_word_end]
-            sentence_keyword_removed = fre_sen_remove.replace(
-                remove_word, "___")
-            print("Sentence with keyword removed: " +
-                  sentence_keyword_removed + "\n")
-    # Finner uttale-IPA
+                pick = choice -1
+                fre_word = main_list[pick][0]
+                fre_def = main_list[pick][1]
+                eng_def = main_list[pick][2]
+                fre_sen = main_list[pick][3]
+        except ValueError:
+            choice = input('Please enter a non-decimal number')
+            pick = ""
+
+    print("\n\nWord: " + fre_word)
+    print("French definition: " + fre_def)
+    print("English definition: " + eng_def)
+    print("French sentence: " + fre_sen)
+
+    sentence_decision = input("\n\nDo you want to use this sentence? Press any key to continue, or 't' to type a new one: ")
+    if sentence_decision == "t":
+        fre_sen = input("Type the new sentence: ")
+
+    keyword = fre_word[0:(len(fre_word)-2)]
+    if fre_sen.find(keyword) != -1:
+        remove_word_start = fre_sen.find(keyword)
+        # Intervention to make sure one can search for expressions, i.e. more than one word
+        if fre_sen.find(fre_word) != -1:
+            fre_sen_remove = fre_sen.replace(fre_word, "PLACEHOLDER")
+        else:
+            fre_sen_remove = fre_sen.replace(keyword, "PLACEHOLDER")
+        remove_word_end = fre_sen_remove.find(" ", remove_word_start)
+        if remove_word_end == -1:
+            remove_word_end = fre_sen_remove.find(".", remove_word_start)
+        remove_word = fre_sen_remove[remove_word_start:remove_word_end]
+        sentence_keyword_removed = fre_sen_remove.replace(
+            remove_word, "___")
+        print("Sentence with keyword removed: " +
+              sentence_keyword_removed + "\n")
+        ok = input("Is this OK? Press enter to continue or 't' to type the sentence with keyword removed yourself")
+    else:
+        sentence_keyword_removed = input("Keyword not found! Please type the sentence with the keyword removed")
+
+    # Finding pronunciation IPA
     url = "https://fr.wiktionary.org/wiki/" + word
     result = requests.get(url)
     content = result.content
     soup = BeautifulSoup(content, features="lxml")
-    samples = soup.find(id="bodyContent")
-    sample = samples.get_text()
-    string = html2text.html2text(sample)
-    pron_start = string.find("\\")
-    pron_end = string.find("\\", pron_start+1)
-    pron = string[pron_start:pron_end+1]
-    # Renser opp:
-    while pron.find("\n") != -1:
-        pron = pron.replace("\n", "")
+    pron = soup.select_one("#mw-content-text > div.mw-parser-output > p > a:nth-child(2) > span").get_text()
     print("Pronunciation: " + pron)
 
-    # Finner kjønn:
-    string = originalstring
-    while string.find("\n") != -1:
-        string = string.replace("\n", " ")
-    gender_search_start = string.find("Principales traductionsFrançaisAnglais")
-    gender_search_start = gender_search_start + \
-        len("Principales traductionsFrançaisAnglais ")
-    masculine = word + " nm"
-    feminine = word + " nf"
-    string = string[gender_search_start:len(string)]
-    masculine_start = string.find(masculine)
-    feminine_start = string.find(feminine)
-    if masculine_start == 0:
-        gender = "un"
-    elif feminine_start == 0:
-        gender = "une"
+    # Finding gender
+    gender = soup.find_all(class_ = "ligne-de-forme")
+    if gender is not None:
+        gender = gender[0].get_text()
+        if gender =="féminin":
+            gender = "une"
+        elif gender == "masculin":
+            gender = "un"
+        else:
+            gender = ""
+        print("Gender: " + gender)
     else:
         gender = ""
-    if gender != "":
-        print("Gender: " + gender)
-
     # Adding images
+    search = ""
     img_prompt = input(
-        "Press enter to search using the same term, or type an alternative search string: ")
+        "\nPress enter to search for an image using the same term, press q to skip, or type an alternative search string: ")
     if img_prompt == "":
         search = word
+    elif img_prompt == "q":
+        search = ""
+        image_name = ""
     else:
         search = img_prompt
-    image_name = ""
-    cont = ""
-    while cont != "q":
-        if cont == "a":
-            search = input("Give new search string: ")
-            root_folder = str(root)
-            dir_name = root_folder + "/" + word
-            remove_images = os.listdir(dir_name)
-            for item in remove_images:
-                if item.endswith(".jpg"):
-                    os.remove(os.path.join(dir_name, item))
-        root = Path().cwd()/"images_temp"
-        duckduckgo_search(root, word, search, max_results=10)
-        image_folder = Path().cwd()/"images_temp"/word
-        images_jpg = "images_temp/" + word + "/*.jpg"
-        images = glob.glob(images_jpg)
+    if search != "":
+        image_name = ""
         cont = ""
-        number_images = len(images)
-        iterator = 0
-        while cont != "q" and cont != "a":
-            if iterator == number_images:
-                print("no more images to display, starting again")
-                iterator = 0
-            im = Image.open(images[iterator])
-            im.show()
-            cont = input(
-                "Press enter to scroll to next image, s to save, q to quit, or a to give a new search string ")
-            if cont == "s":
-                image_name = word + ".jpg"
-                im.save(image_name)
-                cont = "q"
-            for proc in psutil.process_iter():
-                if proc.name() == "display":
-                    proc.kill()
-            iterator = iterator + 1
-    if image_name != "":
-        basewidth = 130
-        img = Image.open(image_name)
-        wpercent = (basewidth/float(img.size[0]))
-        hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((basewidth, hsize), Image.ANTIALIAS)
-        img.save(image_name)
-        imagefolder = Path().cwd()/"images"
-        os.rename(image_name, imagefolder/image_name)
-    # Removes images that are not used
-    root_folder = str(root)
-    dir_name = root_folder + "/" + word
-    remove_images = os.listdir(dir_name)
-    for item in remove_images:
-        if item.endswith(".jpg"):
-            os.remove(os.path.join(dir_name, item))
-    # Gjør bildet lesbart for anki:
-    image_name_anki = "<img src=" + '"' + image_name + '">'
+        while cont != "q":
+            if cont == "a":
+                search = input("Give new search string: ")
+                root_folder = str(root)
+                dir_name = root_folder + "/" + word
+                remove_images = os.listdir(dir_name)
+                for item in remove_images:
+                    if item.endswith(".jpg"):
+                        os.remove(os.path.join(dir_name, item))
+            root = Path().cwd()/"images_temp"
+            duckduckgo_search(root, word, search, max_results=10)
+            image_folder = Path().cwd()/"images_temp"/word
+            images_jpg = "images_temp/" + word + "/*.jpg"
+            images = glob.glob(images_jpg)
+            cont = ""
+            number_images = len(images)
+            iterator = 0
+            while cont != "q" and cont != "a":
+                if iterator == number_images:
+                    print("no more images to display, starting again")
+                    iterator = 0
+                im = Image.open(images[iterator])
+                im.show()
+                cont = input(
+                    "\nPress enter to scroll to next image, s to save, q to quit, or a to give a new search string ")
+                if cont == "s":
+                    image_name = word + str(unique_identifyer) + ".jpg"
+                    im.save(image_name)
+                    cont = "q"
+                for proc in psutil.process_iter():
+                    if proc.name() == "display":
+                        proc.kill()
+                iterator = iterator + 1
+        if image_name != "":
+            basewidth = 130
+            img = Image.open(image_name)
+            wpercent = (basewidth/float(img.size[0]))
+            hsize = int((float(img.size[1])*float(wpercent)))
+            img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+            img.save(image_name)
+            imagefolder = Path().cwd()/"images"
+            os.rename(image_name, imagefolder/image_name)
+        # Removes images that are not used
+        root_folder = str(root)
+        dir_name = root_folder + "/" + word
+        remove_images = os.listdir(dir_name)
+        for item in remove_images:
+            if item.endswith(".jpg"):
+                os.remove(os.path.join(dir_name, item))
+        # Gjør bildet lesbart for anki:
+        image_name_anki = "<img src=" + '"' + image_name + '">'
     # Legger inn forvo:
-    audio_prompt = input("Do you want to search forvo.com for pronunciation? Press enter to search for your current term, or type a new term, or press n to skip: ")
+    audio_prompt = input("\nDo you want to search forvo.com for pronunciation? Press enter to search for your current term, or type a new term, or press n to skip: ")
     newaudioname = ""
     if audio_prompt != "n":
         if audio_prompt == "":
@@ -355,31 +322,30 @@ while prompt != "q":
         # Set download folder
         main_folder = Path().cwd()
         audiofolder = Path().cwd()/"audio"
-        dwnld = input("Do you want to download the file? Press y: ")
-        if dwnld == "y":
+        dwnld = input("\nDo you want to save the file? Press s: ")
+        if dwnld == "s":
             audio = forvo.get_pronunciation(audiosearch, language = "fr")
             audio.download(fmt="mp3")
         for file in os.listdir(main_folder):
             if file.endswith(".mp3"):
                 audioname = os.path.join(main_folder, file)
-                newaudioname = word + ".mp3"
+                newaudioname = word + str(unique_identifyer) + ".mp3"
                 os.rename(audioname, audiofolder/newaudioname)
                 ankiaudio = "[sound:" + newaudioname + "]"
                 pron = pron + ankiaudio
-    two_cards = input("Do you want to make two cards? Press y: ")
-    if two_cards == "y":
+    two_cards = input("Do you want to make two cards? Press s: ")
+    if two_cards == "s":
         two_cards = "y"
     else:
         two_cards = ""
     # New prompt?
     prompt = input(
-        "Do you want to make another card? Press q to quit, x to discard current card and start again, or q to quit: ")
+        "Do you want to make another card? Press enter to continue, x to discard current card and start again, or q to quit: ")
     if prompt != "x":
-        # Lager kort
-        # ankicard = ';'.join([sentence_keyword_removed,image_name,definition,word,gender,fre_sen,pron,two_cards, '', '', '', ''])
-        ankicard = sentence_keyword_removed + ";" + image_name_anki + ";" + definition + ";" + word + \
-            ";" + gender + ";" + fre_sen + ";" + pron + \
-            ";" + two_cards + ";" + ";" + ";" + ";" + ";"
+        # Making cards:
+        empty = ""
+        ankicard = sentence_keyword_removed + "|" + image_name_anki + "|" + fre_def + "|" + fre_word + "|" + gender + "|" + fre_sen + "|" + pron + "|" + two_cards + "|" + empty + "|" + empty + "|" + empty + "|" + eng_def + "|" + empty
+        # The empty fields are optional fields that can be modified later
         ankicards = ankicards + ankicard + "\n"
         text_file = open("ankideck.txt", "w")
         n = text_file.write(ankicards)
