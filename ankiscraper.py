@@ -208,14 +208,17 @@ while prompt != "q":
     # Finding gender
     gender = soup.find_all(class_ = "ligne-de-forme")
     if gender is not None:
-        gender = gender[0].get_text()
-        if gender =="féminin":
-            gender = "une"
-        elif gender == "masculin":
-            gender = "un"
-        else:
+        try:
+            gender = gender[0].get_text()
+            if gender =="féminin":
+                gender = "une"
+            elif gender == "masculin":
+                gender = "un"
+            else:
+                gender = ""
+                print("Gender: " + gender)
+        except IndexError:
             gender = ""
-        print("Gender: " + gender)
     else:
         gender = ""
     # Adding images
