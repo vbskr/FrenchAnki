@@ -315,7 +315,7 @@ while prompt != "q":
     if audio_prompt != "n":
         if audio_prompt == "":
             audiosearch = word
-        elif audio_prompt != "" and audio-prompt != "n":
+        elif audio_prompt != "" and audio_prompt != "n":
             audiosearch = audio_prompt
         forvo = Forvo(api_key)
         #Play pronunciation (only supports Linux with mplayer installed)
