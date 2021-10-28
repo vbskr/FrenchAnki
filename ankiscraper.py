@@ -202,8 +202,13 @@ while prompt != "q":
     result = requests.get(url)
     content = result.content
     soup = BeautifulSoup(content, features="lxml")
-    pron = soup.select_one("#mw-content-text > div.mw-parser-output > p > a:nth-child(2) > span").get_text()
-    print("Pronunciation: " + pron)
+    pron = soup.select_one("#mw-content-text > div.mw-parser-output > p > a:nth-child(2) > span")
+    if pron != None:
+        pron = pron.get_text()
+        print("\nPronunciation: " + pron)
+    else:
+        print("\nPronunciation not found!")
+        pron = ""
 
     # Finding gender
     gender = soup.find_all(class_ = "ligne-de-forme")
