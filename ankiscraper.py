@@ -202,7 +202,7 @@ while prompt != "q":
     result = requests.get(url)
     content = result.content
     soup = BeautifulSoup(content, features="lxml")
-    pron = soup.select_one("#mw-content-text > div.mw-parser-output > p > a:nth-child(2) > span")
+    pron = soup.find(class_='API')
     if pron != None:
         pron = pron.get_text()
         print("\nPronunciation: " + pron)
