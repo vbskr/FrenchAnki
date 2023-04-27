@@ -1,7 +1,7 @@
 # FrenchAnki
 
 ## Introduction
-This is a programme desgined for French learners who want to use [Anki](https://apps.ankiweb.net/) to create flashcards. Creating flashcards from scratch can be very time consuming -- this programme will help you speed up that process considerably.
+This is a programme desgined for French learners who want to use [Anki](https://apps.ankiweb.net/) to create flashcards. Creating flashcards from scratch can be very time consuming – this programme will help you speed up that process considerably.
 
 FrenchAnkiScraper creates Anki cards inspired by Gabriel Wyner's method, laid out in his book [*Fluent Forever*](https://fluent-forever.com/book/). The idea is to only learn new words using the target language (i.e. French), without resorting to English translations. Moreover, all words should ideally be used in their proper contexts, which is why FrenchAnkiScraper includes example sentences for all cards. For more information, check out [*Fluent Forever*](https://fluent-forever.com/book/).
 
@@ -70,3 +70,5 @@ Make sure that "Type" is set to "French Anki Scraper Card".
 Finally, move all the image files (in the images folder) and the audio files (in the audio folder) to the subdirectory in your Anki folder called collection.media.
 
 Then, revise your cards! Happy learning!
+
+(Tested on Pop!_OS 22.04)
