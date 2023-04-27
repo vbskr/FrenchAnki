@@ -3,15 +3,15 @@
 ## Introduction
 This is a programme desgined for French learners who want to use [Anki](https://apps.ankiweb.net/) to create flashcards. Creating flashcards from scratch can be very time consuming – this programme will help you speed up that process considerably.
 
-FrenchAnkiScraper creates Anki cards inspired by Gabriel Wyner's method, laid out in his book [*Fluent Forever*](https://fluent-forever.com/book/). The idea is to only learn new words using the target language (i.e. French), without resorting to English translations. Moreover, all words should ideally be used in their proper contexts, which is why FrenchAnkiScraper includes example sentences for all cards. For more information, check out [*Fluent Forever*](https://fluent-forever.com/book/).
+FrenchAnki creates Anki cards inspired by Gabriel Wyner's method, laid out in his book [*Fluent Forever*](https://fluent-forever.com/book/). The idea is to only learn new words using the target language (i.e. French), without resorting to English translations. Moreover, all words should ideally be used in their proper contexts, which is why FrenchAnki includes example sentences for all cards. For more information, check out [*Fluent Forever*](https://fluent-forever.com/book/).
 
 
 
 ## What does it do?
-FrenchAnkiScraper lets you search for a word in French. It gives you a list of definitions of the word you search for with corresponding example sentences (retrieved from Wordreference.com), information on gender and IPA pronunciation from French Wiktionary, an image from duckduckgo search, as well as a recording of the word from forvo.com, producing a highly detailed and very useful Anki card in less than 30 seconds.
+FrenchAnki lets you search for a word in French. It gives you a list of definitions of the word you search for with corresponding example sentences (retrieved from Wordreference.com), information on gender and IPA pronunciation from French Wiktionary, an image from duckduckgo search, as well as a recording of the word from forvo.com, producing a highly detailed and very useful Anki card in less than 30 seconds.
 
 ## What kind of Anki card does this programme produce?
-FrenchAnkiScraper creates cards with 13 fields. These are:
+FrenchAnki creates cards with 13 fields. These are:
 - Sentence (with word blanked out).
 - Picture
 - Definition (in French),
@@ -27,7 +27,7 @@ FrenchAnkiScraper creates cards with 13 fields. These are:
 - Copy and Paste Area
 
 ## What does the card look like?
-The basic card produced by FrenchAnkiScraper is a fill-in-the-blank example sentence, with a picture and a definition in French, as you can see below. The backside will give the gender and pronunciation (with IPA and sound) as well.
+The basic card produced by FrenchAnki is a fill-in-the-blank example sentence, with a picture and a definition in French, as you can see below. The backside will give the gender and pronunciation (with IPA and sound) as well.
 
 <img src="user_guide/front1.jpg" alt="Fill-in-the-blank card" width="400" height="auto"/>
 <img src="user_guide/front2.jpg" alt="Fill-in-the-blank card with answer" width="400" height="auto"/>
