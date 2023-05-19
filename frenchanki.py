@@ -107,8 +107,8 @@ class Instance:
         things_list.append(self.fre_word)
         things_list.append(self.gender)
         things_list.append(self.fre_sen)
-        things_list.append(self.ipa)
         things_list.append(self.pron)
+        things_list.append(self.ipa)
         things_list.append(self.two_cards)
         things_list.append("")
         things_list.append("")
@@ -313,7 +313,7 @@ def image_search(search):
         if question == "s":
             search = input("Provide search term")
         if question == "n":
-            return False
+            return ""
         directory = os.path.join(os.getcwd(), "images_temp")
         try:
             send2trash.send2trash(directory)
@@ -416,7 +416,7 @@ def get_forvo(search_term, api_key):
             else:
                 os.mkdir(audio_folder)
             file_name = search_term + str(random.randint(100,999)) + ".mp3" #This is the name of the file, without folder
-            audio_name = "[sound:" + file_name + ".mp3]" # This is the text that needs to appear on the anki card
+            audio_name = "[sound:" + file_name + "]" # This is the text that needs to appear on the anki card
             file_name_path = os.path.join(audio_folder, file_name) # This is the entire path of the file
             audio.download(path=file_name_path, fmt="mp3") # Downloading this file
             playsound(file_name_path)
@@ -489,4 +489,10 @@ while True:
             continue
         
     
+    
+    
+
+# %%
+
+
 
