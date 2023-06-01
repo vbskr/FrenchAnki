@@ -3,7 +3,6 @@ import requests
 import bs4
 import lxml
 import pdb
-from jmd_imagescraper.core import *
 import os
 import matplotlib.pyplot as plt
 import send2trash
@@ -307,6 +306,33 @@ def collage_method(images_list):
     collage.show()
 
 # %%
+def search_and_download_images(query, num_images, directory):
+    url = 'https://searx.thegpm.org/'
+
+    params = {
+        'q': query,
+        'categories': 'images',
+        'format': 'json',
+        'pageno': 1,
+        'count': num_images,
+        'language': 'fr'
+    }
+
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    image_urls = [result['img_src'] for result in data['results']]
+    image_paths = []
+
+    for index, image_url in enumerate(image_urls[:num_images]):
+        response = requests.get(image_url)
+        image_path = os.path.join(directory, f'image{index}.jpg')  # Use os.path.join to create the file path
+        with open(image_path, 'wb') as f:
+            f.write(response.content)
+        image_paths.append(image_path)
+
+    return image_paths
+# %%
 def image_search(search):
     while True:
         question = input(f"Do you want to make an image search for: {search}? Press any key to continue, s to give a new search term, or n to cancel")
@@ -320,11 +346,7 @@ def image_search(search):
         except:
             pass
         os.mkdir(directory)
-        duckduckgo_search(directory, "", search, max_results=12)
-        images_list = []
-        for file in os.listdir(directory):
-            image = os.path.join(directory, file)
-            images_list.append(image)
+        images_list = search_and_download_images(search, 12, directory)
         images_list = sorted(images_list)
         collage_method(images_list)
         while True:
