@@ -5,6 +5,7 @@ from PIL import Image
 import random
 import psutil
 import send2trash
+import time
 from pyforvo import Forvo
 from playsound import playsound
 from instance import Instance
@@ -211,17 +212,39 @@ def search_and_download_images(query, num_images, directory):
 
         data = response.json()
 
-        image_urls = [result['img_src'] for result in data['results']]
+        if 'results' not in data or len(data['results']) == 0:
+            print(f"No images found for query: {query}")
+            return []
+
         image_paths = []
 
-        for index, image_url in enumerate(image_urls[:num_images]):
-            response = requests.get(image_url)
-            response.raise_for_status()  # Check for HTTP request errors
+        index = 0
+        while len(image_paths) < num_images and index < len(data['results']):
+            try:
+                result = data['results'][index]
+                image_url = result['img_src']
+                response = requests.get(image_url)
+                if response.status_code == 429:
+                    print(f"Too many requests. Waiting and retrying...")
+                    time.sleep(5)  # Wait for 5 seconds and retry
+                    response = requests.get(image_url)  # Retry the request
+                response.raise_for_status()  # Check for HTTP request errors
 
-            image_path = os.path.join(directory, f'image{index}.jpg')
-            with open(image_path, 'wb') as f:
-                f.write(response.content)
-            image_paths.append(image_path)
+                image_path = os.path.join(directory, f'image{len(image_paths)}.jpg')
+                with open(image_path, 'wb') as f:
+                    f.write(response.content)
+                image_paths.append(image_path)
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 404:
+                    print(f"Image not found. Skipping...")
+                elif response.status_code == 403:
+                    print(f"Forbidden to access the image. Trying next...")
+                else:
+                    print(f"An error occurred while downloading image {index}: {e}")
+            except requests.exceptions.RequestException as e:
+                print(f"An error occurred while downloading image {index}: {e}")
+
+            index += 1
 
         return image_paths
 
